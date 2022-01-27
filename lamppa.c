@@ -4,8 +4,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#define GRIDX 5     // grid x size
-#define GRIDY 5     // grid y size
+#define GRIDX 9     // grid x size
+#define GRIDY 8     // grid y size
 #define BLKSZ 90    // block size in pixels
 #define TXFH 30
 #define INITSC 15   // initial scramble level / difficulty
@@ -37,8 +37,7 @@ void flipbit(char **g, int x, int y) {
 
     if(x >= GRIDX || y >= GRIDY || x < 0 || y < 0) return;
 
-    if(g[y][x] == 0) g[y][x] = 1;
-    else g[y][x] = 0;
+    g[y][x] = g[y][x] == 0 ? 1 : 0;
 }
 
 // toggles bit and surrounding bits
@@ -68,6 +67,7 @@ int wincheck(char **g) {
     return ctr == tot ? 1 : 0;
 }
 
+// resets grid to initial position
 void resetgrid(char **g) {
 
     for(int y = 0; y < GRIDY; y++) {
@@ -95,8 +95,8 @@ int readevent(SDL_Event *event, char **g, uint16_t *ctr, char *haswon) {
 
     int mx, my;
 
-	while (SDL_PollEvent(event)) {
-		switch (event->type) {
+    while (SDL_PollEvent(event)) {
+        switch (event->type) {
 
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&mx, &my);
@@ -117,20 +117,21 @@ int readevent(SDL_Event *event, char **g, uint16_t *ctr, char *haswon) {
                     initgrid(g);
                     break;
 
-				default:
-					break;
+                default:
+                    break;
             }
         }
     }
     return 0;
 }
 
+// draws all objects on screen
 void draw(SDL_Renderer *rend, char **g, SDL_Texture *txt, SDL_Rect *r) {
 
     int txx = 10, txy = GRIDY * BLKSZ;
     int txw, txh;
 
-	SDL_RenderClear(rend);
+    SDL_RenderClear(rend);
 
     // draw background
     SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
@@ -154,9 +155,10 @@ void draw(SDL_Renderer *rend, char **g, SDL_Texture *txt, SDL_Rect *r) {
     SDL_Rect dstrect = {txx, txy, txw, txh};
 
     SDL_RenderCopy(rend, txt, NULL, &dstrect);
-	SDL_RenderPresent(rend);
+    SDL_RenderPresent(rend);
 }
 
+// update score
 void updatesc(uint16_t *ctr, char *haswon, SDL_Renderer *rend, SDL_Surface **tsurf, SDL_Texture **txt,
         SDL_Color *tcol, TTF_Font *font) {
 
@@ -171,8 +173,8 @@ void updatesc(uint16_t *ctr, char *haswon, SDL_Renderer *rend, SDL_Surface **tsu
 
 int main(int argc, char **argv) {
 
-	time_t t;
-	srand((unsigned) time(&t));
+    time_t t;
+    srand((unsigned) time(&t));
 
     char **g = mkgrid();
     char haswon = 0;
@@ -180,18 +182,18 @@ int main(int argc, char **argv) {
 
     SDL_Rect *sr = calloc(1, sizeof(SDL_Rect));
 
-	SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
 
-	SDL_Event *event = calloc(1, sizeof(SDL_Event));
+    SDL_Event *event = calloc(1, sizeof(SDL_Event));
     TTF_Font *font = TTF_OpenFont(FONT, 25);
 
-	SDL_Window *win = SDL_CreateWindow(argv[0],
+    SDL_Window *win = SDL_CreateWindow(argv[0],
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         GRIDX * BLKSZ, GRIDY * BLKSZ + TXFH, 0);
 
-	SDL_Renderer *rend = SDL_CreateRenderer(win, -1,
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_Renderer *rend = SDL_CreateRenderer(win, -1,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     SDL_SetRelativeMouseMode(SDL_FALSE);
 
     SDL_Color tcol = {TCOL_R, TCOL_G, TCOL_B};
@@ -203,7 +205,7 @@ int main(int argc, char **argv) {
     if(!sr || !event || !font || !win || !rend || !tsurf || !txt || !g)
         return 64;
 
-	while(!readevent(event, g, &ctr, &haswon)) {
+    while(!readevent(event, g, &ctr, &haswon)) {
         updatesc(&ctr, &haswon, rend, &tsurf, &txt, &tcol, font);
         draw(rend, g, txt, sr);
     }
@@ -216,7 +218,7 @@ int main(int argc, char **argv) {
     free(sr);
     freegrid(g);
     TTF_Quit();
-	SDL_Quit();
+    SDL_Quit();
 
     return 0;
 }
