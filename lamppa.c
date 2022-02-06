@@ -106,7 +106,7 @@ void initgrid(char **g, Flag *f) {
 
     int x, y;
 
-    for(int i = 0; i < INITSC; i++) {
+    for(int i = 0; i < f->s; i++) {
       x = (rand() % f->x);
       y = (rand() % f->y);
       flip(g, x, y, f);
